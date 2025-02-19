@@ -1,30 +1,74 @@
-import Link from 'next/link';
-import { useState } from 'react';
+import { useState } from 'react'
+import { useRouter } from 'next/router'
+import Head from 'next/head'
+import Image from 'next/image'
 
-export async function getServerSideProps() {
-  // Contoh data yang di-fetch dari server atau API
-  const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
-  const data = await response.json();
+export default function Register() {
+  const [formData, setFormData] = useState({
+    email: '',
+    username: '',
+    password: '',
+  })
+  const router = useRouter()
 
-  return {
-    props: {
-      post: data,
-    },
-  };
-}
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
 
-export default function Home({ post }) {
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    
+    const response = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+    
+    if (response.ok) {
+      router.push('/success')
+    } else {
+      console.error('Registration failed')
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-r from-blue-500 via-purple-600 to-pink-500 flex items-center justify-center">
-      <div className="bg-white p-8 rounded-lg shadow-lg text-center">
-        <h1 className="text-3xl font-bold text-gray-700">Welcome to Next.js with Tailwind</h1>
-        <p className="text-gray-500 my-4">Server-Side Rendering Example</p>
-        <div className="text-center">
-          <Link href="/register" className="text-blue-500 hover:text-blue-700">
-            Go to Register
-          </Link>
+    <>
+      <Head>
+        <title>Login</title>
+        <meta name="description" content="User registration page" />
+      </Head>
+      <div className="min-h-screen flex items-center justify-center bg-indigo-900">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+        <div className="flex items-center justify-center mb-6">
+            <Image src="/Logo_djp.png" alt="DJP Logo" width={50} height={50} className="mr-3" />
+            <h2 className="text-2xl font-semibold text-center text-yellow-400">Login</h2>
           </div>
+          <form onSubmit={handleSubmit}>
+            {['Email', 'Password'].map((field, index) => (
+              <div key={index} className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
+                <input
+                  type={field === 'password' ? 'password' : 'text'}
+                  name={field}
+                  className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+                  placeholder={`Enter your ${field}`}
+                  value={formData[field]}
+                  onChange={handleChange}
+                />
+              </div>
+            ))}
+            <button
+              type="submit"
+              className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            >
+              Register
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
-  );
+    </>
+  )
 }

@@ -1,51 +1,92 @@
-// pages/register.js
 import { useState } from 'react'
+import { useRouter } from 'next/router'
+import Head from 'next/head'
+import Image from 'next/image'
 
 export default function Register() {
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    password: '',
+    gender: '',
+    nik: '',
+    npwp: ''
+  })
+  const router = useRouter()
 
-  const handleSubmit = (e) => {
+  const handleChange = (e) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    })
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    // Logika untuk menangani submit form, seperti validasi atau mengirim data ke API
-    console.log({ username, password })
+    
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+    })
+    
+    if (response.ok) {
+      router.push('/success')
+    } else {
+      console.error('Registration failed')
+    }
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-        <h2 className="text-2xl font-semibold text-center mb-6">Register</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label htmlFor="username" className="block text-sm font-medium text-gray-700">Username</label>
-            <input
-              type="text"
-              id="username"
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              placeholder="Enter your username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-            />
+    <>
+      <Head>
+        <title>Register</title>
+        <meta name="description" content="User registration page" />
+      </Head>
+      <div className="min-h-screen flex items-center justify-center bg-indigo-900">
+        <div className="bg-white p-8 rounded-lg shadow-lg w-96">
+        <div className="flex items-center justify-center mb-6">
+            <Image src="/Logo_djp.png" alt="DJP Logo" width={50} height={50} className="mr-3" />
+            <h2 className="text-2xl font-semibold text-center text-yellow-400">Register</h2>
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-            <input
-              type="password"
-              id="password"
-              className="w-full mt-2 p-3 border border-gray-300 rounded-md"
-              placeholder="Enter your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
-          >
-            Register
-          </button>
-        </form>
+          <form onSubmit={handleSubmit}>
+            {['FirstName', 'LastName', 'Email', 'Username', 'Password', 'NIK', 'NPWP'].map((field, index) => (
+              <div key={index} className="mb-4">
+                <label className="block text-sm font-medium text-gray-700">{field.replace(/([A-Z])/g, ' $1').trim()}</label>
+                <input
+                  type={field === 'password' ? 'password' : 'text'}
+                  name={field}
+                  className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+                  placeholder={`Enter your ${field}`}
+                  value={formData[field]}
+                  onChange={handleChange}
+                />
+              </div>
+            ))}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700">Jenis Kelamin</label>
+              <select
+                name="gender"
+                className="w-full mt-2 p-3 border border-gray-300 rounded-md"
+                value={formData.gender}
+                onChange={handleChange}
+              >
+                <option value="">Pilih Jenis Kelamin</option>
+                <option value="male">Laki - Laki</option>
+                <option value="female">Perempuan</option>
+              </select>
+            </div>
+            <button
+              type="submit"
+              className="w-full py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition"
+            >
+              Register
+            </button>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

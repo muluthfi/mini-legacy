@@ -1,8 +1,10 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
+import { UserModule } from './user/user.module';
+// import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import { hostname } from 'os';
 
 @Module({
@@ -18,10 +20,8 @@ import { hostname } from 'os';
       synchronize: true,
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
     }),
-    UsersModule,
-    AuthModule,
+    UserModule,
+
   ],
-  controllers: [AppController],
-  providers: [AppService],
 })
 export class AppModule {}
